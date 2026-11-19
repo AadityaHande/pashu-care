@@ -1,0 +1,8 @@
+{
+  "name": "pashucare-firebase-admin-tools",
+  "private": true,
+  "type": "module",
+  "scripts": { "set-vet": "node set-vet-role.mjs" },
+  "dependencies": { "firebase-admin": "^14.5.1" },
+  "engines": { "node": ">=22" }
+}
