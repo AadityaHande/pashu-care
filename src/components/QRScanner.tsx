@@ -1,11 +1,10 @@
 "use client";
-import { useEffect, useId, useState } from "react";
+import { useEffect, useId } from "react";
 import { Html5QrcodeScanner } from "html5-qrcode";
-import { Camera, CameraOff } from "lucide-react";
+import { Camera } from "lucide-react";
 
 export default function QRScanner({ onDetected }: { onDetected: (value: string) => void }) {
   const reactId = useId().replace(/:/g, "");
-  const [error, setError] = useState("");
   useEffect(() => {
     const scanner = new Html5QrcodeScanner(`animal-qr-reader-${reactId}`, { fps: 8, qrbox: { width: 220, height: 220 }, aspectRatio: 1 }, false);
     scanner.render((decodedText) => {
@@ -16,7 +15,6 @@ export default function QRScanner({ onDetected }: { onDetected: (value: string) 
   }, [reactId, onDetected]);
   return <div className="qr-scanner-shell">
     <div id={`animal-qr-reader-${reactId}`} className="qr-reader" />
-    <p className="muted small"><Camera size={14} /> Allow camera access to scan an animal's QR identity tag.</p>
-    {error && <p className="form-error"><CameraOff size={14} />{error}</p>}
+    <p className="muted small"><Camera size={14} /> Allow camera access to scan an animal&apos;s QR identity tag.</p>
   </div>;
 }

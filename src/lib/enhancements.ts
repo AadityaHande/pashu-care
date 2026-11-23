@@ -19,7 +19,7 @@ export function applyQueuedReports(data: AppData, submit: (current: AppData, use
 }
 
 export function processEscalations(data: AppData, now = new Date()): AppData {
-  let alerts = [...data.alerts];
+  const alerts = [...data.alerts];
   const rules = data.escalationRules ?? [];
   const alreadyAlerted = new Set(alerts.filter(a => a.type === "ESCALATION").map(a => `${a.relatedId}:${a.title}`));
   const add = (recipientId: string, title: string, message: string, relatedId: string) => {

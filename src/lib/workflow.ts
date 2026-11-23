@@ -87,7 +87,7 @@ export function updateCaseInData(current: AppData, actor: DemoUser, input: {
   }
   const newRecord = input.assessment.trim() ? { id: `HR-${actor.id}-${Date.now()}-${Math.random().toString(36).slice(2, 6)}`, animalId: existing.animalId, date: now.slice(0, 10), type: input.status === "CLOSED" ? "Veterinary case closure" : "Veterinary assessment", notes: input.assessment, recordedBy: actor.name } : null;
   const newVaccination = input.addVaccination && input.vaccineName.trim() ? { id: `VAC-${actor.id}-${Date.now()}-${Math.random().toString(36).slice(2, 6)}`, animalId: existing.animalId, vaccineName: input.vaccineName.trim(), administeredOn: now.slice(0, 10), dueOn: input.vaccineDue || now.slice(0, 10), administeredBy: actor.name, notes: `Updated from ${existing.id}`, status: "COMPLETED" as const } : null;
-  let next: AppData = {
+  const next: AppData = {
     ...current,
     cases: current.cases.map(c => c.id === existing.id ? updated : c),
     reports: current.reports.map(r => r.id === existing.reportId ? { ...r, status: input.status === "CLOSED" ? "ARCHIVED" : "REVIEWED" } : r),
