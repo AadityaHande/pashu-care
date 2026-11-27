@@ -3,8 +3,8 @@ import type { ReactNode } from "react";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "PashuCare — Livestock Health Management",
-  description: "A livestock health management and veterinary decision-support workspace.",
+  title: "PashuCare | Livestock Health Management",
+  description: "A connected livestock health workspace for farm records, veterinary review, animal care and follow-up.",
   applicationName: "PashuCare",
   manifest: "/manifest.webmanifest",
   appleWebApp: { capable: true, statusBarStyle: "default", title: "PashuCare" },
