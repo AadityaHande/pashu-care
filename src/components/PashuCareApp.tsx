@@ -1000,7 +1000,7 @@ export default function PashuCareApp() {
   const syncQueued = () => { if (!online) { setToast("Reconnect to sync offline reports."); return; } if (!data.pendingReports.length) { setToast("No reports are waiting to sync."); return; } const count = data.pendingReports.length; setData(current => applyQueuedReports(current, (snapshot, farmer, queued) => createReportInData(snapshot, farmer, queued.payload))); setToast(`${count} queued report(s) processed.`); };
   const removePending = (id: string) => { if (!user || user.role !== "FARMER") return; setData(current => audit({ ...current, pendingReports: current.pendingReports.filter(p => p.id !== id) }, user, "OFFLINE_REPORT_DISCARDED", "PendingHealthReport", id, "Discarded a queued offline report.")); setToast("Queued report discarded."); };
 
-  if (!firebaseConfigured && process.env.NODE_ENV === "production" && process.env.NEXT_PUBLIC_PASHUCARE_DEMO_MODE !== "true") return <FirebaseSetupRequiredScreen />;
+  if (!firebaseConfigured && process.env.NODE_ENV === "production" && process.env.NEXT_PUBLIC_PASHUCARE_DEMO_MODE === "false") return <FirebaseSetupRequiredScreen />;
   if (!authReady || !hydrated) return <div className="auth-loading"><div className="brand-mark"><HeartPulse size={22}/></div><strong>Preparing PashuCare</strong><span>{firebaseConfigured ? "Checking your secure session and cloud workspace…" : "Loading your local workspace…"}</span></div>;
   if (!user) return firebaseConfigured ? <FirebaseAuthScreen initialError={googleAuthError} /> : <LoginScreen onLogin={login} />;
 

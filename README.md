@@ -19,14 +19,14 @@ npm run dev
 
 Open `http://localhost:3000`.
 
-When Firebase configuration is present, users must sign in or create a Farmer account. Without Firebase, local development opens the clearly labelled preview workspace. To enable the same presentation preview on Vercel, set `NEXT_PUBLIC_PASHUCARE_DEMO_MODE=true`. The preview uses fictional records in browser storage only; it is not a real account system and must not be used for real farmer or animal-health data. Keep this flag `false` when using Firebase accounts.
+When Firebase configuration is present, users must sign in or create a Farmer account. Without Firebase, local development opens the clearly labelled preview workspace. On a production host without Firebase, the clearly labelled presentation preview is enabled by default. Set `NEXT_PUBLIC_PASHUCARE_DEMO_MODE=false` to disable it and show the setup screen. The preview uses fictional records in browser storage only; it is not a real account system and must not be used for real farmer or animal-health data. When Firebase is configured, authenticated accounts are used and the preview mode is ignored.
 
 ## Presentation demo without Firebase
 
 For a time-limited presentation where Firebase credentials are not available:
 
-1. Set `NEXT_PUBLIC_PASHUCARE_DEMO_MODE=true` in the deployment environment.
-2. Redeploy.
+1. Leave Firebase variables empty; the production presentation preview is enabled by default.
+2. Optionally set `NEXT_PUBLIC_PASHUCARE_DEMO_MODE=false` to disable the preview.
 3. Open the site and choose Farmer or Veterinarian from the local preview screen.
 4. Use the **Reset** control to restore the fictional starter dataset between walkthroughs.
 
