@@ -821,10 +821,7 @@ button { overflow-wrap: anywhere; }
   .cloud-sync-retry { width: 28px; height: 28px; flex-basis: 28px; }
 }
 .firebase-setup-required { gap: 16px; padding: 28px 18px; }
-.setup-required-card { display: flex; flex-direction: column; gap: 8px; width: min(100%, 480px); padding: 18px; border: 1px solid #dfe9df; border-radius: 14px; background: #fff; text-align: left; box-shadow: 0 12px 35px rgba(25, 56, 33, .06); }
-.setup-required-card b { color: #294c35; font-size: 13px; margin-bottom: 4px; }
-.setup-required-card code { display: block; padding: 7px 9px; border-radius: 7px; color: #3f5745; background: #f2f6f2; font-size: 11px; overflow-wrap: anywhere; }
-.setup-required-card small { color: #7a897d; line-height: 1.5; margin-top: 5px; }
+
 
 .backup-grid-single { grid-template-columns: 1fr; }
 
@@ -1429,3 +1426,83 @@ button:disabled { cursor: not-allowed; }
   *, *::before, *::after { animation-duration: .01ms !important; transition-duration: .01ms !important; }
 }
 
+
+/* PashuCare typography hierarchy — consistent page and subsection titles. */
+:root {
+  --type-page-title: clamp(2rem, 2.8vw, 2.5rem);
+  --type-section-title: 1.3rem;
+  --type-card-title: 1.08rem;
+  --type-body: 0.94rem;
+}
+body { font-size: 15px; line-height: 1.58; letter-spacing: 0; color: #202d24; }
+.page-stack { font-size: var(--type-body); }
+.page-stack > .section-heading { align-items: flex-end; gap: 22px; }
+.page-stack > .section-heading > div:first-child { min-width: 0; flex: 1 1 auto; }
+.page-stack > .section-heading h1 {
+  display: block; max-width: 100%; margin: 8px 0 0;
+  font-size: var(--type-page-title); font-weight: 780; line-height: 1.08;
+  letter-spacing: -.045em; color: #1d3527; text-wrap: balance;
+}
+.page-stack > .section-heading p {
+  max-width: 760px; margin: 11px 0 0; font-size: 15px;
+  font-weight: 430; line-height: 1.62; letter-spacing: 0; color: #69786e;
+}
+.panel-heading h2, .scanner-panel .panel-heading h2, .identity-list-panel .panel-heading h2 {
+  font-size: var(--type-section-title); font-weight: 730; line-height: 1.28;
+  letter-spacing: -.025em; color: #263d2e;
+}
+.panel-heading p { margin-top: 6px; font-size: 13px; line-height: 1.52; color: #758379; }
+.panel-heading { gap: 14px; }
+.case-detail-section h3, .case-detail-head h3, .guide-hero h2, .backup-card h2 {
+  font-size: var(--type-card-title); font-weight: 720; line-height: 1.35; letter-spacing: -.018em;
+}
+.animal-card h3 { font-size: 18px; line-height: 1.3; font-weight: 730; }
+.case-card-main h3 { font-size: 16px; line-height: 1.35; font-weight: 700; }
+.stat-copy span { font-size: 13px; line-height: 1.4; }
+.stat-copy strong { font-size: 30px; line-height: 1.12; letter-spacing: -.04em; }
+.stat-copy small { font-size: 11px; line-height: 1.4; }
+.report-item-main strong { font-size: 13px; line-height: 1.4; }
+.report-item-main small { font-size: 11px; line-height: 1.45; }
+.form-field > span { font-size: 13px; line-height: 1.4; }
+.form-field small { font-size: 12px; line-height: 1.5; }
+.form-field input, .form-field select, .form-field textarea { font-size: 15px; line-height: 1.45; border-radius: 11px; }
+.data-table th { font-size: 11px; letter-spacing: .06em; }
+.data-table td { font-size: 13px; line-height: 1.45; }
+.data-table td strong { font-size: 13px; }
+.data-table td small { font-size: 11px; }
+.pill { font-size: 11px; line-height: 1.2; padding: 5px 10px; }
+.primary-button, .secondary-button { font-size: 13px; }
+.modal-header h2 { font-size: 21px; line-height: 1.25; letter-spacing: -.035em; }
+.modal-header p { font-size: 13px; line-height: 1.5; }
+.modal-footer > button { font-size: 13px; }
+.empty-state strong { font-size: 15px; }
+.empty-state p { font-size: 13px; line-height: 1.55; }
+
+@media (max-width: 900px) {
+  .page-stack > .section-heading { align-items: stretch; flex-direction: column; gap: 12px; }
+  .page-stack > .section-heading > div:first-child { flex: 1 1 auto; width: 100%; }
+  .page-stack > .section-heading h1 { font-size: clamp(1.95rem, 5vw, 2.25rem); line-height: 1.1; }
+  .page-stack > .section-heading p { font-size: 14px; margin-top: 9px; }
+  .panel-heading h2, .scanner-panel .panel-heading h2, .identity-list-panel .panel-heading h2 { font-size: 19px; }
+  .panel-heading p { font-size: 13px; }
+  .case-detail-section h3, .case-detail-head h3, .guide-hero h2, .backup-card h2 { font-size: 17px; }
+  .modal-header h2 { font-size: 19px; }
+}
+@media (max-width: 600px) {
+  body { font-size: 14px; }
+  .page-stack > .section-heading h1 { font-size: clamp(1.8rem, 7.2vw, 2rem); line-height: 1.12; letter-spacing: -.04em; }
+  .page-stack > .section-heading p { font-size: 13.5px; line-height: 1.58; }
+  .panel-heading h2, .scanner-panel .panel-heading h2, .identity-list-panel .panel-heading h2 { font-size: 18px; line-height: 1.3; }
+  .panel-heading p { font-size: 12.5px; }
+  .animal-card h3 { font-size: 16px; }
+  .case-card-main h3 { font-size: 15px; }
+  .stat-copy span { font-size: 11px; }
+  .stat-copy strong { font-size: 25px; }
+  .form-field > span { font-size: 12px; }
+  .data-table td { font-size: 12px; }
+  .modal-header h2 { font-size: 18px; }
+}
+@media (max-width: 360px) {
+  .page-stack > .section-heading h1 { font-size: 27px; }
+  .panel-heading h2, .scanner-panel .panel-heading h2, .identity-list-panel .panel-heading h2 { font-size: 17px; }
+}
