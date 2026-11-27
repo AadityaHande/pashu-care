@@ -4,7 +4,7 @@
 
 1. Extract the ZIP and import the project into Vercel (or upload the project using Vercel's supported deployment flow).
 2. Select **Next.js** as the framework preset. Do not deploy this source ZIP as a static WordPress asset.
-3. Set Node.js to **22.x** in Vercel project settings.
+3. Set Node.js to **24.x** in Vercel project settings.
 4. For real authenticated use, add all six `NEXT_PUBLIC_FIREBASE_*` variables from `.env.example`. For a presentation-only deployment without Firebase, the local preview is enabled by default. Set `NEXT_PUBLIC_PASHUCARE_DEMO_MODE=false` to block preview access. Google OAuth uses the same Firebase web configuration; no separate Google client secret belongs in the browser environment.
 5. Deploy, then check the build log. `NEXT_PUBLIC_*` values are compiled into the client bundle; changing them requires a new deployment.
 6. In Firebase Authentication → Sign-in method, enable **Email/Password** and **Google**, select a support email, and save.

@@ -4,7 +4,7 @@ PashuCare is a livestock health-management PWA with Farmer and Veterinarian work
 
 ## Requirements
 
-- Node.js 22.x
+- Node.js 24.x
 - A Firebase project with Authentication, Firestore and Storage enabled
 - A deployed Next.js host (Vercel is supported)
 
