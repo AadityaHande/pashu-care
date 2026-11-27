@@ -8,12 +8,12 @@ import QRScanner from "@/components/QRScanner";
 import type { ElementType, FormEvent, ReactNode } from "react";
 import { AnimatePresence, motion } from "motion/react";
 import {
-  Activity, AlertCircle, AlertTriangle, ArrowDownRight, ArrowRight, ArrowUpRight,
+  Activity, AlertCircle, AlertTriangle, ArrowRight, ArrowUpRight,
   Bell, CalendarClock, CalendarDays, Check, CheckCircle2, ChevronDown, ChevronRight,
-  ClipboardCheck, ClipboardList, Clock3, CloudOff, Download, FilePlus2, FileText,
-  Filter, HeartPulse, Home, Info, Leaf, LogOut, MapPin, Menu, MoreHorizontal,
+  ClipboardCheck, ClipboardList, CloudOff, Download, FilePlus2, FileText,
+  Filter, HeartPulse, Home, Info, Leaf, LogOut, MapPin, MoreHorizontal,
   PawPrint, Plus, RefreshCcw, Search, ShieldCheck, Sprout, Stethoscope,
-  Syringe, Tractor, TrendingUp, UserRound, Users, Wifi, X, Eye, Save, CircleHelp,
+  Syringe, Tractor, TrendingUp, UserRound, Wifi, X, Save, CircleHelp,
   CheckCheck, BookOpen, CalendarCheck, RotateCcw, ScanSearch, QrCode, ScanLine,
   Mic, Camera, Image as ImageIcon, FileSpreadsheet, Printer, Settings2,
   ClipboardList as ClipboardClock, MapPinned, CloudUpload, Shield, FileDown, BellRing, Pencil,
@@ -27,17 +27,40 @@ import {
 } from "@/lib/firebase";
 import type { User as FirebaseUser } from "firebase/auth";
 import { clearDemoData, loadDemoData, saveDemoData } from "@/lib/storage";
-import { assessPreliminaryRisk, detectPossibleCluster } from "@/lib/surveillance";
 import type {
-  AlertItem, Animal, AppData, CaseStatus, CropRotationPlan, DemoUser,
-  HealthReport, Priority, Role, Severity, VeterinaryCase, Locale, AuditLog, Farm, Vaccination
+  Animal, AppData, CaseStatus, CropRotationPlan, DemoUser,
+  HealthReport, Priority, Role, Severity, VeterinaryCase, Locale, Farm, Vaccination
 } from "@/lib/types";
 import { audit, applyQueuedReports, downloadCsv, processRemindersAndEscalations } from "@/lib/enhancements";
 import { createReportInData, queueReport, updateCaseInData, type ReportInput } from "@/lib/workflow";
 import { reportCoordinates } from "@/lib/geo";
-import { translate, localeName } from "@/lib/translations";
+import { translate } from "@/lib/translations";
 
 const LeafletSurveillanceMap = dynamic(() => import("@/components/LeafletSurveillanceMap"), { ssr: false, loading: () => <div className="leaflet-loading">Loading area map…</div> });
+
+interface PashuSpeechRecognitionAlternative {
+  readonly transcript: string;
+}
+interface PashuSpeechRecognitionResult {
+  readonly [index: number]: PashuSpeechRecognitionAlternative;
+}
+interface PashuSpeechRecognitionResultList {
+  readonly [index: number]: PashuSpeechRecognitionResult;
+}
+interface PashuSpeechRecognitionResultEvent extends Event {
+  readonly results: PashuSpeechRecognitionResultList;
+}
+interface PashuSpeechRecognitionInstance {
+  lang: string;
+  interimResults: boolean;
+  maxAlternatives: number;
+  onstart: (() => void) | null;
+  onend: (() => void) | null;
+  onerror: (() => void) | null;
+  onresult: ((event: PashuSpeechRecognitionResultEvent) => void) | null;
+  start(): void;
+}
+type PashuSpeechRecognitionConstructor = new () => PashuSpeechRecognitionInstance;
 
 interface BeforeInstallPromptEvent extends Event {
   prompt: () => Promise<void>;
@@ -392,7 +415,7 @@ function BackupPage({ data, user, onRestore }: { data: AppData; user: DemoUser; 
   const counts: Array<[string, number]> = [["Farms", data.farms.length], ["Animals", data.animals.length], ["Health reports", data.reports.length], ["Veterinary cases", data.cases.length], ["Vaccinations", data.vaccinations.length], ["Alerts", data.alerts.length]];
   return <div className="page-stack"><SectionHeading eyebrow="DATA PORTABILITY" title="Backup & restore" subtitle={user.role === "VETERINARIAN" ? "Export a cooperative workspace snapshot for controlled off-platform backup." : "Download or restore your Farmer workspace backup."} />
     <div className="stats-grid backup-stats">{counts.map(([label, value]) => <div className="stat-card" key={label}><div className="stat-copy"><span>{label}</span><strong>{value}</strong></div></div>)}</div>
-    <div className={`backup-grid ${user.role === "VETERINARIAN" ? "backup-grid-single" : ""}`}><section className="panel backup-card"><div className="backup-icon"><Download size={21}/></div><h2>{user.role === "VETERINARIAN" ? "Export cooperative data" : "Export workspace"}</h2><p>Download {user.role === "VETERINARIAN" ? "the cooperative's accessible Farmer records and veterinary activity" : "your farms, animals, reports, veterinary cases, vaccination records, alerts, settings and audit history"} as a JSON backup.</p><button type="button" className="primary-button" onClick={exportBackup}><Download size={15}/> Download full backup</button></section>{user.role === "FARMER" && <section className="panel backup-card"><div className="backup-icon"><FilePlus2 size={21}/></div><h2>Restore workspace</h2><p>Choose a PashuCare JSON backup created by this Farmer account. Restore replaces only this account's data.</p><label className="secondary-button backup-file-button"><FilePlus2 size={15}/> Choose backup file<input type="file" accept="application/json,.json" onChange={event => { void importBackup(event.target.files?.[0]); event.currentTarget.value = ""; }}/></label></section>}</div>
+    <div className={`backup-grid ${user.role === "VETERINARIAN" ? "backup-grid-single" : ""}`}><section className="panel backup-card"><div className="backup-icon"><Download size={21}/></div><h2>{user.role === "VETERINARIAN" ? "Export cooperative data" : "Export workspace"}</h2><p>Download {user.role === "VETERINARIAN" ? "Farmer records accessible to the cooperative and veterinary activity" : "your farms, animals, reports, veterinary cases, vaccination records, alerts, settings and audit history"} as a JSON backup.</p><button type="button" className="primary-button" onClick={exportBackup}><Download size={15}/> Download full backup</button></section>{user.role === "FARMER" && <section className="panel backup-card"><div className="backup-icon"><FilePlus2 size={21}/></div><h2>Restore workspace</h2><p>Choose a PashuCare JSON backup created by this Farmer account. Restore replaces only records owned by this signed-in account.</p><label className="secondary-button backup-file-button"><FilePlus2 size={15}/> Choose backup file<input type="file" accept="application/json,.json" onChange={event => { void importBackup(event.target.files?.[0]); event.currentTarget.value = ""; }}/></label></section>}</div>
     {status && <div className="auth-success" role="status">{status}</div>}{error && <div className="form-error" role="alert">{error}</div>}
     <div className="safety-banner"><ShieldCheck size={15}/><span>Backups may contain names, livestock health records and contact details. Store them privately. Veterinarian exports can contain records for every Farmer in this Firebase project; keep them in approved secure storage. Farmer restores are restricted to the signed-in account's own records.</span></div>
   </div>;
@@ -522,7 +545,7 @@ function ReportWizard({ data, user, locale, online, onClose, onSubmit }: {
     }, () => setError("Location permission was not granted. You can still submit using the approximate area."), { enableHighAccuracy: false, timeout: 10000, maximumAge: 60000 });
   };
   const startVoice = () => {
-    const browser = window as unknown as { SpeechRecognition?: new () => any; webkitSpeechRecognition?: new () => any };
+    const browser = window as Window & { SpeechRecognition?: PashuSpeechRecognitionConstructor; webkitSpeechRecognition?: PashuSpeechRecognitionConstructor };
     const Recognition = browser.SpeechRecognition || browser.webkitSpeechRecognition;
     if (!Recognition) { setError("Voice dictation is not supported in this browser. You can type the observation instead."); return; }
     const recognition = new Recognition();
@@ -532,7 +555,7 @@ function ReportWizard({ data, user, locale, online, onClose, onSubmit }: {
     recognition.onstart = () => setListening(true);
     recognition.onend = () => setListening(false);
     recognition.onerror = () => { setListening(false); setError("Microphone input was unavailable. Check browser permission or type the observation."); };
-    recognition.onresult = (event: any) => {
+    recognition.onresult = (event: PashuSpeechRecognitionResultEvent) => {
       const transcript = String(event.results?.[0]?.[0]?.transcript ?? "");
       if (transcript) {
         setVoiceTranscript((old) => [old, transcript].filter(Boolean).join(" "));
@@ -599,7 +622,7 @@ function FarmModal({ initial, user, onClose, onSave }: { initial?: Farm; user: D
   const [name, setName] = useState(initial?.name || ""); const [village, setVillage] = useState(initial?.village || ""); const [district, setDistrict] = useState(initial?.district || ""); const [area, setArea] = useState(String(initial?.areaAcres ?? "")); const [latitude, setLatitude] = useState(initial?.latitude == null ? "" : String(initial.latitude)); const [longitude, setLongitude] = useState(initial?.longitude == null ? "" : String(initial.longitude)); const [error, setError] = useState(""); const [locating, setLocating] = useState(false);
   const captureLocation = () => { if (!navigator.geolocation) { setError("GPS is not supported by this browser."); return; } setLocating(true); navigator.geolocation.getCurrentPosition(pos => { setLatitude(pos.coords.latitude.toFixed(6)); setLongitude(pos.coords.longitude.toFixed(6)); setLocating(false); setError(""); }, () => { setLocating(false); setError("Location permission was denied or unavailable. Enter coordinates manually."); }, { enableHighAccuracy: false, timeout: 10000 }); };
   const save = () => { const n = Number(area); const lat = latitude.trim() ? Number(latitude) : undefined; const lng = longitude.trim() ? Number(longitude) : undefined; if (!name.trim() || !village.trim() || !district.trim() || !Number.isFinite(n) || n <= 0) { setError("Enter a farm name, village, district and valid area."); return; } if ((latitude.trim() && (lat == null || lat < -90 || lat > 90)) || (longitude.trim() && (lng == null || lng < -180 || lng > 180)) || (latitude.trim() !== longitude.trim())) { setError("Enter both valid GPS coordinates, or leave both blank."); return; } onSave({ id: initial?.id || `farm-${user.id}-${Date.now()}-${Math.random().toString(36).slice(2, 6)}`, farmerId: user.id, name: name.trim(), village: village.trim(), district: district.trim(), areaAcres: n, latitude: lat, longitude: lng }); };
-  return <Modal title={initial ? "Edit farm" : "Register a farm"} description="Save farm identity, area and optional GPS coordinates." onClose={onClose}><div className="modal-form"><label className="form-field"><span>Farm name *</span><input value={name} onChange={e => setName(e.target.value)} placeholder="e.g. Green Valley Farm"/></label><div className="form-grid-two"><label className="form-field"><span>Village / area *</span><input value={village} onChange={e => setVillage(e.target.value)} placeholder="Pashan"/></label><label className="form-field"><span>District *</span><input value={district} onChange={e => setDistrict(e.target.value)} placeholder="Pune"/></label></div><label className="form-field"><span>Farm area (acres) *</span><input type="number" min="0.1" step="0.1" value={area} onChange={e => setArea(e.target.value)} placeholder="e.g. 4.5"/></label><div className="form-grid-two"><label className="form-field"><span>Latitude</span><input type="number" value={latitude} onChange={e => setLatitude(e.target.value)} placeholder="18.5…"/></label><label className="form-field"><span>Longitude</span><input type="number" value={longitude} onChange={e => setLongitude(e.target.value)} placeholder="73.8…"/></label></div><button className="secondary-button" type="button" onClick={captureLocation} disabled={locating}><LocateFixed size={15}/>{locating ? "Getting location…" : "Use current GPS location"}</button><small className="muted">GPS is optional. Use it only with the farmer's permission; village/area is sufficient for a basic farm record.</small>{error && <div className="form-error">{error}</div>}</div><div className="modal-footer"><button className="secondary-button" onClick={onClose}>Cancel</button><button className="primary-button" onClick={save}><Save size={15}/> Save farm</button></div></Modal>;
+  return <Modal title={initial ? "Edit farm" : "Register a farm"} description="Save farm identity, area and optional GPS coordinates." onClose={onClose}><div className="modal-form"><label className="form-field"><span>Farm name *</span><input value={name} onChange={e => setName(e.target.value)} placeholder="e.g. Green Valley Farm"/></label><div className="form-grid-two"><label className="form-field"><span>Village / area *</span><input value={village} onChange={e => setVillage(e.target.value)} placeholder="Pashan"/></label><label className="form-field"><span>District *</span><input value={district} onChange={e => setDistrict(e.target.value)} placeholder="Pune"/></label></div><label className="form-field"><span>Farm area (acres) *</span><input type="number" min="0.1" step="0.1" value={area} onChange={e => setArea(e.target.value)} placeholder="e.g. 4.5"/></label><div className="form-grid-two"><label className="form-field"><span>Latitude</span><input type="number" value={latitude} onChange={e => setLatitude(e.target.value)} placeholder="18.5…"/></label><label className="form-field"><span>Longitude</span><input type="number" value={longitude} onChange={e => setLongitude(e.target.value)} placeholder="73.8…"/></label></div><button className="secondary-button" type="button" onClick={captureLocation} disabled={locating}><LocateFixed size={15}/>{locating ? "Getting location…" : "Use current GPS location"}</button><small className="muted">GPS is optional. Use it only with explicit permission from the farmer; village/area is sufficient for a basic farm record.</small>{error && <div className="form-error">{error}</div>}</div><div className="modal-footer"><button className="secondary-button" onClick={onClose}>Cancel</button><button className="primary-button" onClick={save}><Save size={15}/> Save farm</button></div></Modal>;
 }
 
 function AnimalModal({ initial, farms, user, onClose, onSave }: { initial?: Animal; farms: AppData["farms"]; user: DemoUser; onClose: () => void; onSave: (animal: Animal) => void }) {
