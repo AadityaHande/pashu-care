@@ -196,8 +196,8 @@ function FirebaseSetupRequiredScreen() {
   return <div className="auth-loading firebase-setup-required">
     <div className="brand-mark"><HeartPulse size={22}/></div>
     <strong>Firebase setup required</strong>
-    <span>PashuCare is in production mode and will not save real records to a local demo workspace.</span>
-    <div className="setup-required-card"><b>Configure these deployment variables</b><code>NEXT_PUBLIC_FIREBASE_API_KEY</code><code>NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN</code><code>NEXT_PUBLIC_FIREBASE_PROJECT_ID</code><code>NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET</code><code>NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID</code><code>NEXT_PUBLIC_FIREBASE_APP_ID</code><small>Add them in Vercel → Project Settings → Environment Variables, then redeploy. Also enable Google and Email/Password in Firebase Authentication.</small></div>
+    <span>Firebase is not configured. Enable the presentation preview only with NEXT_PUBLIC_PASHUCARE_DEMO_MODE=true.</span>
+    <div className="setup-required-card"><b>Configure these deployment variables</b><code>NEXT_PUBLIC_FIREBASE_API_KEY</code><code>NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN</code><code>NEXT_PUBLIC_FIREBASE_PROJECT_ID</code><code>NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET</code><code>NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID</code><code>NEXT_PUBLIC_FIREBASE_APP_ID</code><small>For a demo without Firebase, set NEXT_PUBLIC_PASHUCARE_DEMO_MODE=true in Vercel and redeploy. This uses fictional preview data stored only in the browser. For real accounts, add all six Firebase values, enable Google and Email/Password, and keep demo mode false.</small></div>
   </div>;
 }
 
@@ -1000,7 +1000,7 @@ export default function PashuCareApp() {
   const syncQueued = () => { if (!online) { setToast("Reconnect to sync offline reports."); return; } if (!data.pendingReports.length) { setToast("No reports are waiting to sync."); return; } const count = data.pendingReports.length; setData(current => applyQueuedReports(current, (snapshot, farmer, queued) => createReportInData(snapshot, farmer, queued.payload))); setToast(`${count} queued report(s) processed.`); };
   const removePending = (id: string) => { if (!user || user.role !== "FARMER") return; setData(current => audit({ ...current, pendingReports: current.pendingReports.filter(p => p.id !== id) }, user, "OFFLINE_REPORT_DISCARDED", "PendingHealthReport", id, "Discarded a queued offline report.")); setToast("Queued report discarded."); };
 
-  if (!firebaseConfigured && process.env.NODE_ENV === "production") return <FirebaseSetupRequiredScreen />;
+  if (!firebaseConfigured && process.env.NODE_ENV === "production" && process.env.NEXT_PUBLIC_PASHUCARE_DEMO_MODE !== "true") return <FirebaseSetupRequiredScreen />;
   if (!authReady || !hydrated) return <div className="auth-loading"><div className="brand-mark"><HeartPulse size={22}/></div><strong>Preparing PashuCare</strong><span>{firebaseConfigured ? "Checking your secure session and cloud workspace…" : "Loading your local workspace…"}</span></div>;
   if (!user) return firebaseConfigured ? <FirebaseAuthScreen initialError={googleAuthError} /> : <LoginScreen onLogin={login} />;
 

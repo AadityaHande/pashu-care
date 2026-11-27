@@ -5,7 +5,7 @@
 1. Extract the ZIP and import the project into Vercel (or upload the project using Vercel's supported deployment flow).
 2. Select **Next.js** as the framework preset. Do not deploy this source ZIP as a static WordPress asset.
 3. Set Node.js to **22.x** in Vercel project settings.
-4. Add all six `NEXT_PUBLIC_FIREBASE_*` variables from `.env.example` to the correct deployment environments. Google OAuth uses the same Firebase web configuration; no separate Google client secret belongs in the browser environment.
+4. For real authenticated use, add all six `NEXT_PUBLIC_FIREBASE_*` variables from `.env.example`. For a presentation-only deployment without Firebase, set `NEXT_PUBLIC_PASHUCARE_DEMO_MODE=true` instead. Google OAuth uses the same Firebase web configuration; no separate Google client secret belongs in the browser environment.
 5. Deploy, then check the build log. `NEXT_PUBLIC_*` values are compiled into the client bundle; changing them requires a new deployment.
 6. In Firebase Authentication → Sign-in method, enable **Email/Password** and **Google**, select a support email, and save.
 7. In Firebase Authentication → Settings → Authorized domains, add the exact deployed Vercel hostname and `localhost` if using local development.
@@ -47,3 +47,10 @@ No service-account JSON is required by the deployed client app. New registration
 - Test Firebase rules with the Firebase Emulator Suite before real users.
 - Confirm the single-project cooperative model: each Farmer record remains stored under that Farmer UID; vetted Veterinarians in the same Firebase project can read and update those records for case handling. All Veterinarians in this Firebase project can access all Farmer records. Use separate Firebase projects if organizations must be strictly isolated.
 - Provide a privacy notice, retention policy and user support route before collecting real personal/animal-health data.
+
+
+## Presentation-only deployment without Firebase
+
+Set `NEXT_PUBLIC_PASHUCARE_DEMO_MODE=true` in the Vercel project environment and redeploy. When Firebase variables are absent, this enables the fictional seeded local preview on the production host. The preview includes Farmer and Veterinarian role selection and a reset control.
+
+The preview is intended only for a controlled presentation. It uses browser-local storage, does not authenticate users, does not sync to Firestore, and must not be used to store real personal or animal-health records. Set the flag to `false` and configure Firebase before using real accounts.

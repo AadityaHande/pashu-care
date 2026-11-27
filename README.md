@@ -4,7 +4,7 @@ PashuCare is a livestock health-management PWA with Farmer and Veterinarian work
 
 ## Requirements
 
-- Node.js 22 or newer
+- Node.js 22.x
 - A Firebase project with Authentication, Firestore and Storage enabled
 - A deployed Next.js host (Vercel is supported)
 
@@ -19,7 +19,18 @@ npm run dev
 
 Open `http://localhost:3000`.
 
-When Firebase configuration is present, users must sign in or create a Farmer account. When Firebase is not configured, the app opens its clearly labelled synthetic local preview; preview data is stored only in that browser.
+When Firebase configuration is present, users must sign in or create a Farmer account. Without Firebase, local development opens the clearly labelled preview workspace. To enable the same presentation preview on Vercel, set `NEXT_PUBLIC_PASHUCARE_DEMO_MODE=true`. The preview uses fictional records in browser storage only; it is not a real account system and must not be used for real farmer or animal-health data. Keep this flag `false` when using Firebase accounts.
+
+## Presentation demo without Firebase
+
+For a time-limited presentation where Firebase credentials are not available:
+
+1. Set `NEXT_PUBLIC_PASHUCARE_DEMO_MODE=true` in the deployment environment.
+2. Redeploy.
+3. Open the site and choose Farmer or Veterinarian from the local preview screen.
+4. Use the **Reset** control to restore the fictional starter dataset between walkthroughs.
+
+This mode intentionally keeps role switching and seeded records so both sides of the workflow can be demonstrated. It is local to each browser and does not persist to Firestore or sync across devices. Do not enter real personal data.
 
 ## Firebase setup
 
@@ -137,6 +148,7 @@ The current sync is record-level merge with **local-wins for same-ID edits** whe
 npm run dev       # Local development
 npm run typecheck # TypeScript check
 npm run lint      # ESLint via Next.js
+npm run check      # Run typecheck and lint
 npm run build     # Production build
 npm start         # Start production server after build
 ```
